@@ -39,7 +39,7 @@ const getUsers = (req, res) => {
         res.status(400).send({ message: 'Отправлены неверные данные' });
         return;
       }
-      res.status(500).send({ message: 'Отправлены неверные данные' });
+      res.status(500).send({ message: 'Ошибка сервера' });
     });
 };
 

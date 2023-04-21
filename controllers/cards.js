@@ -43,14 +43,18 @@ const createCards = (req, res) => {
 const deleteCard = (req, res) => {
   Card.findByIdAndDelete(req.params.cardId)
     .then((card) => {
+      if (!card) {
+        res.status(404).send({ message: '404 — Переданы некорректные данные _id для удаления карточки.' });
+        return;
+      }
       res.status(200).send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(404).send({ message: '404 — Переданы некорректные данные _id для удаления карточки.' });
+        res.status(400).send({ message: '400 — Переданы некорректные данные _id для удаления карточки.' });
         return;
       }
-      res.status(500).send({ message: 'Карточка запроса не найдена' });
+      res.status(500).send({ message: 'Ошибка сервера' });
     });
 };
 
@@ -72,7 +76,7 @@ const likeCard = (req, res) => {
         res.status(400).send({ message: '400 — Переданы некорректные данные _id для удаления карточки.' });
         return;
       }
-      res.status(500).send({ message: 'Карточка запроса не найдена' });
+      res.status(500).send({ message: 'Ошибка сервера' });
     });
 };
 
@@ -93,7 +97,7 @@ const deleteLike = (req, res) => {
         res.status(400).send({ message: 'Некорректный ID' });
         return;
       }
-      res.status(500).send({ message: 'Некорректный ID' });
+      res.status(500).send({ message: 'Ошибка сервера' });
     });
 };
 
