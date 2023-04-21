@@ -1,8 +1,8 @@
-class ErrorNotFound extends Error {
+class ValidationErrorCode extends Error {
   constructor(message = 'Не найдено') {
     super(message);
     this.statusCode = 404;
   }
 }
 
-module.exports = ErrorNotFound;
+module.exports = ValidationErrorCode;

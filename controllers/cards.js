@@ -1,7 +1,4 @@
 const Card = require('../models/card');
-const { NOTFOUND_ERROR_CODE } = require('../errors/not-found');
-const { VALIDATION_ERROR_CODE } = require('../errors/bad-request');
-const { INTERVAL_SERVER_ERROR_CODE } = require('../errors/internal-server-error');
 
 const getCards = (req, res) => {
   Card.find({})
@@ -11,10 +8,10 @@ const getCards = (req, res) => {
     })
     .catch((err) => {
       if (err) {
-        res.status(VALIDATION_ERROR_CODE).send({ message: 'Переданы неверные данные' });
+        res.status(400).send({ message: 'Переданы неверные данные' });
         return;
       }
-      res.status(INTERVAL_SERVER_ERROR_CODE).send({ message: 'Ошибка сервера' });
+      res.status(500).send({ message: 'Ошибка сервера' });
     });
 };
 
@@ -29,17 +26,17 @@ const createCards = (req, res) => {
   })
     .then((newCard) => {
       if (!req.body.name || !req.body.link) {
-        res.status(VALIDATION_ERROR_CODE).send({ message: '400 — Переданы некорректные данные.' });
+        res.status(400).send({ message: '400 — Переданы некорректные данные.' });
         return;
       }
       res.status(201).send({ data: newCard });
     })
     .catch((err) => {
       if (err) {
-        res.status(VALIDATION_ERROR_CODE).send({ message: 'Неверные данные, переданные при создании пользователя' });
+        res.status(400).send({ message: 'Неверные данные, переданные при создании пользователя' });
         return;
       }
-      res.status(INTERVAL_SERVER_ERROR_CODE).send({ message: 'Ошибка сервера' });
+      res.status(500).send({ message: 'Ошибка сервера' });
     });
 };
 
@@ -50,10 +47,10 @@ const deleteCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(VALIDATION_ERROR_CODE).send({ message: '400 — Переданы некорректные данные _id для удаления карточки.' });
+        res.status(400).send({ message: '400 — Переданы некорректные данные _id для удаления карточки.' });
         return;
       }
-      res.status(INTERVAL_SERVER_ERROR_CODE).send({ message: 'Карточка запроса не найдена' });
+      res.status(500).send({ message: 'Карточка запроса не найдена' });
     });
 };
 
@@ -66,16 +63,16 @@ const likeCard = (req, res) => {
     .populate(['owner', 'likes'])
     .then((card) => {
       if (!card) {
-        res.status(NOTFOUND_ERROR_CODE).send({ message: 'Карточка запроса не найдена' });
+        res.status(404).send({ message: 'Карточка запроса не найдена' });
       }
       res.status(200).send({ data: card });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(VALIDATION_ERROR_CODE).send({ message: '400 — Переданы некорректные данные _id для удаления карточки.' });
+        res.status(400).send({ message: '400 — Переданы некорректные данные _id для удаления карточки.' });
         return;
       }
-      res.status(INTERVAL_SERVER_ERROR_CODE).send({ message: 'Карточка запроса не найдена' });
+      res.status(500).send({ message: 'Карточка запроса не найдена' });
     });
 };
 
@@ -87,16 +84,16 @@ const deleteLike = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        res.status(NOTFOUND_ERROR_CODE).send({ message: 'Карточка запроса не найдена. Некорректный ID' });
+        res.status(404).send({ message: 'Карточка запроса не найдена. Некорректный ID' });
       }
       res.status(200).send({ data: card });
     })
     .catch((err) => {
       if (err) {
-        res.status(VALIDATION_ERROR_CODE).send({ message: 'Некорректный ID' });
+        res.status(400).send({ message: 'Некорректный ID' });
         return;
       }
-      res.status(INTERVAL_SERVER_ERROR_CODE).send({ message: 'Некорректный ID' });
+      res.status(500).send({ message: 'Некорректный ID' });
     });
 };
 
