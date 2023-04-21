@@ -47,7 +47,7 @@ const deleteCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(400).send({ message: '400 — Переданы некорректные данные _id для удаления карточки.' });
+        res.status(404).send({ message: '404 — Переданы некорректные данные _id для удаления карточки.' });
         return;
       }
       res.status(500).send({ message: 'Карточка запроса не найдена' });
