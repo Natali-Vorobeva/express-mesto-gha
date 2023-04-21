@@ -1,13 +1,20 @@
 const User = require('../models/user');
 
+const NOT_FOUND_ERROR_CODE = 404;
+const BAD_REQUEST_ERROR_CODE = 400;
+const INTERNAL_SERVER_ERROR_CODE = 500;
+
 const createUsers = (req, res) => {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
     .then((user) => {
       res.status(201).send(user);
     })
-    .catch(() => {
-      res.status(400).send({ message: '400 — Переданы некорректные данные при создании пользователя.' });
+    .catch((err) => {
+      if (err) {
+        res.status(BAD_REQUEST_ERROR_CODE).send({ message: '400 — Переданы некорректные данные при создании пользователя.' });
+      }
+      res.status(INTERNAL_SERVER_ERROR_CODE).send({ message: 'Ошибка сервера' });
     });
 };
 
@@ -15,17 +22,17 @@ const getUserInfo = (req, res) => {
   User.findById(req.params.id)
     .then((user) => {
       if (!user) {
-        res.status(404).send({ message: '404 - Несуществующий ID пользователя' });
+        res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Запрашиваемый пользователь не найден' });
         return;
       }
       res.status(200).send(user);
     })
     .catch((err) => {
       if (err) {
-        res.status(400).send({ message: '400 — Некорректный ID пользователя' });
+        res.status(BAD_REQUEST_ERROR_CODE).send({ message: '400 — Некорректный ID пользователя' });
         return;
       }
-      res.status(404).send(err);
+      res.status(INTERNAL_SERVER_ERROR_CODE).send({ message: 'Ошибка сервера' });
     });
 };
 
@@ -36,10 +43,10 @@ const getUsers = (req, res) => {
     })
     .catch((err) => {
       if (err) {
-        res.status(400).send({ message: 'Отправлены неверные данные' });
+        res.status(BAD_REQUEST_ERROR_CODE).send({ message: 'Отправлены неверные данные' });
         return;
       }
-      res.status(500).send({ message: 'Ошибка сервера' });
+      res.status(INTERNAL_SERVER_ERROR_CODE).send({ message: 'Ошибка сервера' });
     });
 };
 
@@ -56,16 +63,16 @@ const updateUser = (req, res) => {
   )
     .then((user) => {
       if (!user) {
-        res.status(400).send({ message: 'Пользователь с таким ID не найден' });
+        res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Запрашиваемый пользователь не найден' });
       }
       res.status(200).send(user);
     })
     .catch((error) => {
       if (error.name === 'ValidationError') {
-        res.status(400).send({ message: '400 — Переданы некорректные данные при создании пользователя.' });
+        res.status(BAD_REQUEST_ERROR_CODE).send({ message: '400 — Переданы некорректные данные при создании пользователя.' });
         return;
       }
-      res.status(400).send(error);
+      res.status(INTERNAL_SERVER_ERROR_CODE).send({ message: 'Ошибка сервера' });
     });
 };
 
@@ -83,14 +90,15 @@ const updateAvatar = (req, res) => {
   )
     .then((user) => {
       if (!user) {
-        res.status(400).send({ message: 'Пользователь не найден' });
+        res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Запрашиваемый пользователь не найден' });
       }
       res.status(200).send(user);
     })
     .catch((err) => {
       if (err) {
-        res.status(400).send({ message: 'Отправлены некорректные данные' });
+        res.status(BAD_REQUEST_ERROR_CODE).send({ message: 'Отправлены некорректные данные' });
       }
+      res.status(INTERNAL_SERVER_ERROR_CODE).send({ message: 'Ошибка сервера' });
     });
 };
 
