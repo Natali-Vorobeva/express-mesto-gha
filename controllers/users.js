@@ -1,65 +1,55 @@
 const User = require('../models/user');
+const { NOTFOUND_ERROR_CODE } = require('../errors/not-found');
+const { VALIDATION_ERROR_CODE } = require('../errors/bad-request');
+const { INTERVAL_SERVER_ERROR_CODE } = require('../errors/internal-server-error');
 
-const ErrorBadRequest = require('../errors/bad-request');
 const ErrorNotFound = require('../errors/not-found');
 
 const createUsers = (req, res) => {
-
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
     .then((user) => {
-      if (!req.body.avatar) {
-        res.status(400).send({ message: '400 — Переданы некорректные данные при создании пользователя.' });
-      }
-      if (!req.body.name || !req.body.about) {
-        res.status(400).send({ message: '400 — Переданы некорректные данные при создании пользователя.' });
-        console.log(res.status);
-        return;
-      }
       res.status(201).send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: '400 — Переданы некорректные данные при создании пользователя.' });
+        res.status(VALIDATION_ERROR_CODE).send({ message: '400 — Переданы некорректные данные при создании пользователя.' });
         return;
       }
-      res.status(400).send(err);
-    })
-}
+      res.status(VALIDATION_ERROR_CODE).send({ message: '400 — Переданы некорректные данные при создании пользователя.' });
+    });
+};
 
 const getUserInfo = (req, res) => {
   User.findById(req.params.id)
     .then((user) => {
       if (!user) {
-        res.status(404).send({ message: '404 - Несуществующий ID пользователя' });
+        res.status(NOTFOUND_ERROR_CODE).send({ message: '404 - Несуществующий ID пользователя' });
         return;
       }
       res.status(200).send(user);
     })
     .catch((err) => {
       if (err) {
-        res.status(400).send({ message: '400 — Некорректный ID пользователя' });
+        res.status(VALIDATION_ERROR_CODE).send({ message: '400 — Некорректный ID пользователя' });
         return;
       }
-      res.status(404).send(err);
-    })
-}
+      res.status(NOTFOUND_ERROR_CODE).send(err);
+    });
+};
 
-const getUsers = (req, res, next) => {
+const getUsers = (req, res) => {
   User.find({})
     .then((users) => {
-      if (users.length === 0) {
-        res.status(404).send({ message: '404 — Не найдено' });
-        return;
-      }
       res.status(200).send(users);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new ErrorBadRequest('Отправлены некорректные данные'));
+      if (err) {
+        res.status(VALIDATION_ERROR_CODE).send({ message: 'Отправлены неверные данные' });
         return;
       }
-    })
+      res.status(INTERVAL_SERVER_ERROR_CODE).send({ message: 'Отправлены неверные данные' });
+    });
 };
 
 const updateUser = (req, res) => {
@@ -70,26 +60,24 @@ const updateUser = (req, res) => {
     { name, about },
     {
       new: true,
-      runValidators: true
-    }
+      runValidators: true,
+    },
   )
     .then((user) => {
       if (!user) {
-        res.status(400).send({ message: `Пользователь с ID ${userId} не найден` });
+        res.status(VALIDATION_ERROR_CODE).send({ message: `Пользователь с ID ${userId} не найден` });
       }
       res.status(200).send(user);
     })
-    .catch((error) => {
-      console.log(error);
-      if (error.name === 'ValidationError') {
-        res.status(400).send({ message: '400 — Переданы некорректные данные при создании пользователя.' });
-        return;
+    .catch((err) => {
+      if (err) {
+        res.status(VALIDATION_ERROR_CODE).send({ message: '400 — Переданы некорректные данные при создании пользователя.' });
       }
-      res.status(400).send(error);
-    })
+    });
+  res.status(VALIDATION_ERROR_CODE).send({ message: 'Пользователь не найден' });
 };
 
-const updateAvatar = (req, res, next) => {
+const updateAvatar = (req, res) => {
   const userId = req.user.id;
 
   const { avatar } = req.body;
@@ -98,8 +86,8 @@ const updateAvatar = (req, res, next) => {
     { avatar },
     {
       new: true,
-      runValidators: true
-    }
+      runValidators: true,
+    },
   )
     .then((user) => {
       if (!user) {
@@ -108,15 +96,9 @@ const updateAvatar = (req, res, next) => {
       res.status(200).send(user);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new ErrorBadRequest('Отправлены некорректные данные'));
-        return;
+      if (err) {
+        res.status(VALIDATION_ERROR_CODE).send({ message: 'Отправлены некорректные данные' });
       }
-      if (err.name === 'CastError') {
-        next(new ErrorBadRequest('Некорректный ID пользователя'));
-        return;
-      }
-      next(err);
     });
 };
 
@@ -125,5 +107,5 @@ module.exports = {
   getUsers,
   getUserInfo,
   updateUser,
-  updateAvatar
-}
+  updateAvatar,
+};
