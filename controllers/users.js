@@ -56,16 +56,17 @@ const updateUser = (req, res) => {
   )
     .then((user) => {
       if (!user) {
-        res.status(400).send({ message: `Пользователь с ID ${userId} не найден` });
+        res.status(400).send({ message: 'Пользователь с таким ID не найден' });
       }
       res.status(200).send(user);
     })
-    .catch((err) => {
-      if (err) {
+    .catch((error) => {
+      if (error.name === 'ValidationError') {
         res.status(400).send({ message: '400 — Переданы некорректные данные при создании пользователя.' });
+        return;
       }
+      res.status(400).send(error);
     });
-  res.status(400).send({ message: 'Пользователь не найден' });
 };
 
 const updateAvatar = (req, res) => {
