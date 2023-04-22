@@ -11,10 +11,11 @@ const createUsers = (req, res) => {
       res.status(201).send(user);
     })
     .catch((err) => {
-      if (err) {
-        res.status(BAD_REQUEST_ERROR_CODE).send({ message: '400 — Переданы некорректные данные при создании пользователя.' });
+      if (err.name === 'CastError') {
+        res.status(BAD_REQUEST_ERROR_CODE).send({ message: 'Некорректный запрос' });
+      } else {
+        res.status(INTERNAL_SERVER_ERROR_CODE).send({ message: 'Ошибка сервера' });
       }
-      res.status(INTERNAL_SERVER_ERROR_CODE).send({ message: 'Ошибка сервера' });
     });
 };
 
@@ -28,11 +29,11 @@ const getUserInfo = (req, res) => {
       res.status(200).send(user);
     })
     .catch((err) => {
-      if (err) {
-        res.status(BAD_REQUEST_ERROR_CODE).send({ message: '400 — Некорректный ID пользователя' });
-        return;
+      if (err.name === 'CastError') {
+        res.status(BAD_REQUEST_ERROR_CODE).send({ message: 'Некорректный запрос' });
+      } else {
+        res.status(INTERNAL_SERVER_ERROR_CODE).send({ message: 'Ошибка сервера' });
       }
-      res.status(INTERNAL_SERVER_ERROR_CODE).send({ message: 'Ошибка сервера' });
     });
 };
 
@@ -42,11 +43,11 @@ const getUsers = (req, res) => {
       res.status(200).send(users);
     })
     .catch((err) => {
-      if (err) {
-        res.status(BAD_REQUEST_ERROR_CODE).send({ message: 'Отправлены неверные данные' });
-        return;
+      if (err.name === 'CastError') {
+        res.status(BAD_REQUEST_ERROR_CODE).send({ message: 'Некорректный запрос' });
+      } else {
+        res.status(INTERNAL_SERVER_ERROR_CODE).send({ message: 'Ошибка сервера' });
       }
-      res.status(INTERNAL_SERVER_ERROR_CODE).send({ message: 'Ошибка сервера' });
     });
 };
 
@@ -67,12 +68,12 @@ const updateUser = (req, res) => {
       }
       res.status(200).send(user);
     })
-    .catch((error) => {
-      if (error.name === 'ValidationError') {
-        res.status(BAD_REQUEST_ERROR_CODE).send({ message: '400 — Переданы некорректные данные при создании пользователя.' });
-        return;
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(BAD_REQUEST_ERROR_CODE).send({ message: 'Некорректный запрос' });
+      } else {
+        res.status(INTERNAL_SERVER_ERROR_CODE).send({ message: 'Ошибка сервера' });
       }
-      res.status(INTERNAL_SERVER_ERROR_CODE).send({ message: 'Ошибка сервера' });
     });
 };
 
@@ -95,10 +96,11 @@ const updateAvatar = (req, res) => {
       res.status(200).send(user);
     })
     .catch((err) => {
-      if (err) {
-        res.status(BAD_REQUEST_ERROR_CODE).send({ message: 'Отправлены некорректные данные' });
+      if (err.name === 'CastError') {
+        res.status(BAD_REQUEST_ERROR_CODE).send({ message: 'Некорректный запрос' });
+      } else {
+        res.status(INTERNAL_SERVER_ERROR_CODE).send({ message: 'Ошибка сервера' });
       }
-      res.status(INTERNAL_SERVER_ERROR_CODE).send({ message: 'Ошибка сервера' });
     });
 };
 

@@ -11,11 +11,11 @@ const getCards = (req, res) => {
       res.status(200).send(cards);
     })
     .catch((err) => {
-      if (err) {
-        res.status(BAD_REQUEST_ERROR_CODE).send({ message: 'Переданы неверные данные' });
-        return;
+      if (err.name === 'CastError') {
+        res.status(BAD_REQUEST_ERROR_CODE).send({ message: 'Некорректный запрос' });
+      } else {
+        res.status(INTERNAL_SERVER_ERROR_CODE).send({ message: 'Ошибка сервера' });
       }
-      res.status(INTERNAL_SERVER_ERROR_CODE).send({ message: 'Ошибка сервера' });
     });
 };
 
@@ -36,11 +36,11 @@ const createCards = (req, res) => {
       res.status(201).send({ data: newCard });
     })
     .catch((err) => {
-      if (err) {
-        res.status(BAD_REQUEST_ERROR_CODE).send({ message: 'Неверные данные, переданные при создании пользователя' });
-        return;
+      if (err.name === 'CastError') {
+        res.status(BAD_REQUEST_ERROR_CODE).send({ message: 'Некорректный запрос' });
+      } else {
+        res.status(INTERNAL_SERVER_ERROR_CODE).send({ message: 'Ошибка сервера' });
       }
-      res.status(INTERNAL_SERVER_ERROR_CODE).send({ message: 'Ошибка сервера' });
     });
 };
 
@@ -55,10 +55,10 @@ const deleteCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(BAD_REQUEST_ERROR_CODE).send({ message: '400 — Переданы некорректные данные _id для удаления карточки.' });
-        return;
+        res.status(BAD_REQUEST_ERROR_CODE).send({ message: 'Некорректный запрос' });
+      } else {
+        res.status(INTERNAL_SERVER_ERROR_CODE).send({ message: 'Ошибка сервера' });
       }
-      res.status(INTERNAL_SERVER_ERROR_CODE).send({ message: 'Ошибка сервера' });
     });
 };
 
@@ -77,10 +77,10 @@ const likeCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(BAD_REQUEST_ERROR_CODE).send({ message: '400 — Переданы некорректные данные _id для удаления карточки.' });
-        return;
+        res.status(BAD_REQUEST_ERROR_CODE).send({ message: 'Некорректный запрос' });
+      } else {
+        res.status(INTERNAL_SERVER_ERROR_CODE).send({ message: 'Ошибка сервера' });
       }
-      res.status(INTERNAL_SERVER_ERROR_CODE).send({ message: 'Ошибка сервера' });
     });
 };
 
@@ -97,11 +97,11 @@ const deleteLike = (req, res) => {
       res.status(200).send({ data: card });
     })
     .catch((err) => {
-      if (err) {
-        res.status(BAD_REQUEST_ERROR_CODE).send({ message: 'Некорректный ID' });
-        return;
+      if (err.name === 'CastError') {
+        res.status(BAD_REQUEST_ERROR_CODE).send({ message: 'Некорректный запрос' });
+      } else {
+        res.status(INTERNAL_SERVER_ERROR_CODE).send({ message: 'Ошибка сервера' });
       }
-      res.status(INTERNAL_SERVER_ERROR_CODE).send({ message: 'Ошибка сервера' });
     });
 };
 
