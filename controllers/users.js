@@ -19,6 +19,8 @@ const createUsers = (req, res) => {
     });
 };
 
+// ЗДЕСЬ ОШИБКА GET http://localhost:3000/users/text (ДОЛЖЕН БЫТЬ 400)
+
 const getUserInfo = (req, res) => {
   User.findById(req.params.id)
     .then((user) => {
@@ -29,7 +31,7 @@ const getUserInfo = (req, res) => {
       res.status(200).send(user);
     })
     .catch((error) => {
-      if (error.name === 'ValidationError') {
+      if (error.name === 'CastError') {
         res.status(BAD_REQUEST_ERROR_CODE).send({ message: '400 — Переданы некорректные данные при создании пользователя.' });
       } else {
         res.status(INTERNAL_SERVER_ERROR_CODE).send({ message: 'Ошибка сервера' });
@@ -42,12 +44,8 @@ const getUsers = (req, res) => {
     .then((users) => {
       res.status(200).send(users);
     })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(BAD_REQUEST_ERROR_CODE).send({ message: 'Некорректный запрос' });
-      } else {
-        res.status(INTERNAL_SERVER_ERROR_CODE).send({ message: 'Ошибка сервера' });
-      }
+    .catch(() => {
+      res.status(INTERNAL_SERVER_ERROR_CODE).send({ message: 'Ошибка сервера' });
     });
 };
 

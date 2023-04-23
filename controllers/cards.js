@@ -10,12 +10,8 @@ const getCards = (req, res) => {
     .then((cards) => {
       res.status(200).send(cards);
     })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(BAD_REQUEST_ERROR_CODE).send({ message: 'Некорректный запрос' });
-      } else {
-        res.status(INTERNAL_SERVER_ERROR_CODE).send({ message: 'Ошибка сервера' });
-      }
+    .catch(() => {
+      res.status(INTERNAL_SERVER_ERROR_CODE).send({ message: 'Ошибка сервера' });
     });
 };
 
@@ -29,14 +25,14 @@ const createCards = (req, res) => {
     owner: ownerId,
   })
     .then((newCard) => {
-      if (!req.body.name || !req.body.link) {
+      if (!newCard) {
         res.status(BAD_REQUEST_ERROR_CODE).send({ message: '400 — Переданы некорректные данные.' });
         return;
       }
       res.status(201).send({ data: newCard });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err.name === 'ValidationError') {
         res.status(BAD_REQUEST_ERROR_CODE).send({ message: 'Некорректный запрос' });
       } else {
         res.status(INTERNAL_SERVER_ERROR_CODE).send({ message: 'Ошибка сервера' });
@@ -76,7 +72,7 @@ const likeCard = (req, res) => {
       res.status(200).send({ data: card });
     })
     .catch((error) => {
-      if (error.name === 'ValidationError') {
+      if (error.name === 'CastError') {
         res.status(BAD_REQUEST_ERROR_CODE).send({ message: '400 — Переданы некорректные данные при создании пользователя.' });
       } else {
         res.status(INTERNAL_SERVER_ERROR_CODE).send({ message: 'Ошибка сервера' });
