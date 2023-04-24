@@ -5,8 +5,12 @@ const BAD_REQUEST_ERROR_CODE = 400;
 const INTERNAL_SERVER_ERROR_CODE = 500;
 
 const createUsers = (req, res) => {
-  const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar })
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
+  User.create({
+    name, about, avatar, email, password,
+  })
     .then((user) => {
       res.status(201).send(user);
     })
@@ -19,7 +23,9 @@ const createUsers = (req, res) => {
     });
 };
 
-// ЗДЕСЬ ОШИБКА GET http://localhost:3000/users/text (ДОЛЖЕН БЫТЬ 400)
+// const login = (req, res) => {
+
+// }
 
 const getUserInfo = (req, res) => {
   User.findById(req.params.id)

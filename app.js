@@ -2,8 +2,10 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const router = require('./routes');
+const login = require('./controllers/users');
+const createUser = require('./controllers/users');
 
-const { PORT = 3000 } = process.env;
+const { PORT = 3003 } = process.env;
 
 const app = express();
 mongoose.connect('mongodb://0.0.0.0:27017/mestodb');
@@ -11,10 +13,8 @@ mongoose.connect('mongodb://0.0.0.0:27017/mestodb');
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use((req, res, next) => {
-  req.user = { id: '64384e05f46cf560ab1e76bc' };
-  next();
-});
+app.post('/signin', login);
+app.post('/signup', createUser);
 
 app.use(router);
 
