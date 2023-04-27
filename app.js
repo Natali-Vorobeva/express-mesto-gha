@@ -2,9 +2,14 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
-const router = require('./routes');
+const usersRouter = require('./routes/users');
+const cardsRouter = require('./routes/cards');
+const notFoundRouter = require('./utils/errors/notFoundRouter');
+const { createUsers, login } = require('./controllers/users');
+const { validateUserCreate, validateUserLogin } = require('./middlewares/celebrate');
+const auth = require('./middlewares/auth');
 
-const { PORT = 3000 } = process.env;
+const { PORT = 3003 } = process.env;
 
 const app = express();
 mongoose.connect('mongodb://0.0.0.0:27017/mestodb');
@@ -12,7 +17,14 @@ mongoose.connect('mongodb://0.0.0.0:27017/mestodb');
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(router);
+// app.use(router);
+
+app.post('/signup', validateUserCreate, createUsers);
+app.post('/signin', validateUserLogin, login);
+
+app.use('/users', auth, usersRouter);
+app.use('/cards', auth, cardsRouter);
+app.use('/*', notFoundRouter);
 
 app.use(errors());
 app.use((err, req, res, next) => {

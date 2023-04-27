@@ -1,6 +1,6 @@
 const Card = require('../models/card');
 // const NotFoundError = require('../errors/not-found');
-const IntervalServerError = require('../errors/internal-server-error');
+const IntervalServerError = require('../utils/errors/internal-server-error');
 
 const NOT_FOUND_ERROR_CODE = 404;
 const BAD_REQUEST_ERROR_CODE = 400;
