@@ -1,6 +1,8 @@
 const Card = require('../models/card');
 // const NotFoundError = require('../errors/not-found');
 const IntervalServerError = require('../utils/errors/internal-server-error');
+const ForbiddenError = require('../utils/errors/forbidden');
+const NotFoundError = require('../utils/errors/not-found');
 
 const NOT_FOUND_ERROR_CODE = 404;
 const BAD_REQUEST_ERROR_CODE = 400;
@@ -45,17 +47,23 @@ const createCards = (req, res, next) => {
 };
 
 const deleteCard = (req, res, next) => {
-  Card.findByIdAndDelete(req.params.cardId)
-    .then((card) => {
-      if (!card) {
-        res.status(NOT_FOUND_ERROR_CODE).send({ message: '404 — Переданы некорректные данные _id для удаления карточки.' });
-        return;
+  Card.findById(req.params.cardId)
+    .then((card, cardId) => {
+      if (!cardId) {
+        throw new NotFoundError('Не найдено');
       }
-      res.status(200).send(card);
+      if (JSON.stringify(card.owner) !== JSON.stringify(req.user._id)) {
+        throw new ForbiddenError('Нет доступа');
+      } else {
+        return Card.deleteOne(card)
+          .then(() => res
+            .status(200)
+            .send({ message: 'Все хорошо!' }));
+      }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(BAD_REQUEST_ERROR_CODE).send({ message: 'Некорректный запрос' });
+        res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Не найдено' });
       }
     })
     .catch(() => {

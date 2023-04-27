@@ -4,7 +4,7 @@ module.exports = (req, res, next) => {
   const { autorization } = req.headers;
   if (!autorization || autorization.startsWith('Bearer ')) {
     return res.status(401)
-      .send({ message: 'Необходима авторизация' });
+      .send({ message: 'Нет доступа' });
   }
   const token = autorization.replace('Bearer', '');
   let payload;
