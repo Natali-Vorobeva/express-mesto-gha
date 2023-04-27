@@ -9,7 +9,7 @@ const { createUsers, login } = require('./controllers/users');
 const { validateUserCreate, validateUserLogin } = require('./middlewares/celebrate');
 const auth = require('./middlewares/auth');
 
-const { PORT = 3003 } = process.env;
+const { PORT = 3000 } = process.env;
 
 const app = express();
 mongoose.connect('mongodb://0.0.0.0:27017/mestodb');
