@@ -17,14 +17,12 @@ mongoose.connect('mongodb://0.0.0.0:27017/mestodb');
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// app.use(router);
-
 app.post('/signup', validateUserCreate, createUsers);
 app.post('/signin', validateUserLogin, login);
 
-app.use('/users', auth, usersRouter);
+app.use('/users', usersRouter);
 app.use('/cards', auth, cardsRouter);
-app.use('/*', notFoundRouter);
+app.use('/*', auth, notFoundRouter);
 
 app.use(errors());
 app.use((err, req, res, next) => {
@@ -40,4 +38,6 @@ app.use((err, req, res, next) => {
   next();
 });
 
-app.listen(PORT);
+app.listen(PORT, () => {
+  console.log(`App listening on port ${PORT}`);
+});

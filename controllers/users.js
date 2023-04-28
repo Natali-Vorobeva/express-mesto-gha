@@ -1,7 +1,8 @@
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
-// const NotFoundError = require('../utils/errors/not-found');
+const UnauthorizedError = require('../utils/errors/unauthorized');
 const BadRequestError = require('../utils/errors/bad-request');
 const NotFoundError = require('../utils/errors/not-found');
 const IntervalServerError = require('../utils/errors/internal-server-error');
@@ -23,12 +24,7 @@ const createUsers = (req, res, next) => {
       User.create({
         email, password: hash, name, about, avatar,
       })
-        .then((user) => res.status(201).send({
-          email: user.email,
-          name: user.name,
-          about: user.about,
-          avatar: user.avatar,
-        }))
+        .then((user) => res.status(201).send(user))
         .catch((err) => {
           if (err.code === 11000) {
             next(new ConflictError('Пользователь с такой почтой уже зарегистрирован.'));
@@ -41,26 +37,21 @@ const createUsers = (req, res, next) => {
         .catch(next);
     });
 };
+const { NODE_ENV, JWT_SECRET } = process.env;
 
 const login = (req, res, next) => {
   const { email, password } = req.body;
+  // console.log(email);
+
   User.findUserByCredentials({ email, password })
     .then((user) => {
+      const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'where_are_we_going_with_the_Piglet', { expiresIn: '7d' });
+      res.send({ token });
       // console.log(user);
-      // if (!user.email) {
-      //   res.status(401).send({ message: 'Необходимо авторизоваться' });
-      //   return;
-      // }
-      res.status(200).send(user);
-    })
-    .catch((err) => {
-      res.status(401)
-        .send({ message: err.message });
     })
     .catch(() => {
-      throw new IntervalServerError('Ошибка сервера');
-    })
-    .catch(next);
+      next(new UnauthorizedError('Неправильные почта или пароль.'));
+    });
 };
 
 const getUserInfo = (req, res, next) => {
@@ -95,11 +86,9 @@ const getUsers = (req, res, next) => {
 };
 
 const updateUser = (req, res, next) => {
-  const userId = req.user.id;
-  console.log(req.user.id);
   const { name, about } = req.body;
   User.findByIdAndUpdate(
-    userId,
+    req.user._id,
     { name, about },
     {
       new: true,
