@@ -1,5 +1,5 @@
 const Card = require('../models/card');
-// const NotFoundError = require('../errors/not-found');
+
 const IntervalServerError = require('../utils/errors/internal-server-error');
 const ForbiddenError = require('../utils/errors/forbidden');
 const NotFoundError = require('../utils/errors/not-found');
@@ -47,24 +47,19 @@ const createCards = (req, res, next) => {
 };
 
 const deleteCard = (req, res, next) => {
+  const owner = req.user._id;
+
   Card.findById(req.params.cardId)
-    .then((card, cardId) => {
-      if (!cardId) {
-        throw new NotFoundError('Не найдено');
+    .then((card) => {
+      if (!card) {
+        throw new NotFoundError(
+          'Карточка с указанным id не найдена.',
+        );
       }
-      if (JSON.stringify(card.owner) !== JSON.stringify(req.user._id)) {
-        throw new ForbiddenError('Нет доступа');
-      } else {
-        return Card.deleteOne(card)
-          .then(() => res
-            .status(200)
-            .send({ message: 'Все хорошо!' }));
+      if (card.owner.toString() !== owner) {
+        throw new ForbiddenError('Отсутствие прав на удаление карточки.');
       }
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Не найдено' });
-      }
+      return Card.findByIdAndRemove(req.params.cardId);
     })
     .catch(() => {
       throw new IntervalServerError('Ошибка сервера');

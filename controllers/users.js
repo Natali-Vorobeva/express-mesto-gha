@@ -3,6 +3,7 @@ const User = require('../models/user');
 
 // const NotFoundError = require('../utils/errors/not-found');
 const BadRequestError = require('../utils/errors/bad-request');
+const NotFoundError = require('../utils/errors/not-found');
 const IntervalServerError = require('../utils/errors/internal-server-error');
 const ConflictError = require('../utils/errors/conflictError');
 
@@ -34,7 +35,7 @@ const createUsers = (req, res, next) => {
           } else if (err.name === 'ValidationError') {
             next(new BadRequestError('Переданы некорректные данные для создания пользователя.'));
           } else {
-            next(new IntervalServerError('Ошибка сервера'));
+            next(err);
           }
         })
         .catch(next);
@@ -43,8 +44,13 @@ const createUsers = (req, res, next) => {
 
 const login = (req, res, next) => {
   const { email, password } = req.body;
-  User.findUserByCredentials({ email, password }).select('+password')
+  User.findUserByCredentials({ email, password })
     .then((user) => {
+      // console.log(user);
+      // if (!user.email) {
+      //   res.status(401).send({ message: 'Необходимо авторизоваться' });
+      //   return;
+      // }
       res.status(200).send(user);
     })
     .catch((err) => {
@@ -90,6 +96,7 @@ const getUsers = (req, res, next) => {
 
 const updateUser = (req, res, next) => {
   const userId = req.user.id;
+  console.log(req.user.id);
   const { name, about } = req.body;
   User.findByIdAndUpdate(
     userId,
@@ -101,7 +108,7 @@ const updateUser = (req, res, next) => {
   )
     .then((user) => {
       if (!user) {
-        res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Пользователь с таким ID не найден' });
+        throw new NotFoundError('Пользователь по указанному id не найден.');
       }
       res.status(200).send(user);
     })
