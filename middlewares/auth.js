@@ -10,10 +10,10 @@ module.exports = (req, res, next) => {
   const token = autorization.replace('Bearer', '');
   let payload;
   try {
-    payload = jwt.verify(token, 'secret-key');
+    payload = jwt.verify(token, 'where_are_we_going_with_the_Piglet');
   } catch (err) {
     next(new UnauthorizedError('Необходима авторизация'));
   }
   req.user = payload;
-  return next();
+  next();
 };

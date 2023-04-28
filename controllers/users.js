@@ -24,7 +24,13 @@ const createUsers = (req, res, next) => {
       User.create({
         email, password: hash, name, about, avatar,
       })
-        .then((user) => res.status(201).send(user))
+        .then((user) => res.status(201).send({
+          _id: user._id,
+          email: user.email,
+          name: user.name,
+          about: user.about,
+          avatar: user.avatar,
+        }))
         .catch((err) => {
           if (err.code === 11000) {
             next(new ConflictError('Пользователь с такой почтой уже зарегистрирован.'));
@@ -41,16 +47,19 @@ const { NODE_ENV, JWT_SECRET } = process.env;
 
 const login = (req, res, next) => {
   const { email, password } = req.body;
-  // console.log(email);
-
-  User.findUserByCredentials({ email, password })
+  User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'where_are_we_going_with_the_Piglet', { expiresIn: '7d' });
-      res.send({ token });
-      // console.log(user);
+      console.log(user);
+      res.send({
+        token: jwt.sign(
+          { _id: user._id },
+          NODE_ENV === 'production' ? JWT_SECRET : 'where_are_we_going_with_the_Piglet',
+          { expiresIn: '7d' },
+        ),
+      });
     })
     .catch(() => {
-      next(new UnauthorizedError('Неправильные почта или пароль.'));
+      next(new UnauthorizedError('Неправильные fffffпочта или пароль.'));
     });
 };
 
@@ -85,7 +94,18 @@ const getUsers = (req, res, next) => {
     .catch(next);
 };
 
+const getUser = (req, res, next) => {
+  User.findById(req.params.id)
+    .then((user) => {
+      if (!user) {
+        next(new NotFoundError('Пользователь не найден.'));
+      } else res.send(user);
+    })
+    .catch(next);
+};
+
 const updateUser = (req, res, next) => {
+  console.log(req.body);
   const { name, about } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -145,6 +165,7 @@ module.exports = {
   createUsers,
   login,
   getUsers,
+  getUser,
   getUserInfo,
   updateUser,
   updateAvatar,

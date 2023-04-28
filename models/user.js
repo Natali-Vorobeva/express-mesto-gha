@@ -49,18 +49,19 @@ userSchema.statics.findUserByCredentials = function findUser(email, password) {
   return this.findOne({ email }).select('+password')
 
     .then((user) => {
-      console.log(user);
       if (!user) {
         return Promise.reject(new UnauthorizedError('Неправильные почта или пароль.'));
       }
-      bcrypt.compare(password, user.password)
+
+      return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
             return Promise.reject(new UnauthorizedError('Неправильные почта или пароль.'));
           }
-          console.log(user);
+
           return user;
         });
     });
 };
+
 module.exports = mongoose.model('user', userSchema);

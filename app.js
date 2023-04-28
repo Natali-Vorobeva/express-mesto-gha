@@ -9,7 +9,7 @@ const { createUsers, login } = require('./controllers/users');
 const { validateUserCreate, validateUserLogin } = require('./middlewares/celebrate');
 const auth = require('./middlewares/auth');
 
-const { PORT = 3000 } = process.env;
+const { PORT = 3003 } = process.env;
 
 const app = express();
 mongoose.connect('mongodb://0.0.0.0:27017/mestodb');
@@ -20,9 +20,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.post('/signup', validateUserCreate, createUsers);
 app.post('/signin', validateUserLogin, login);
 
-app.use('/users', usersRouter);
+app.use('/users', auth, usersRouter);
 app.use('/cards', auth, cardsRouter);
-app.use('/*', auth, notFoundRouter);
+app.use('/*', notFoundRouter);
 
 app.use(errors());
 app.use((err, req, res, next) => {
