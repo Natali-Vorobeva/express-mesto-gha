@@ -53,7 +53,7 @@ const login = (req, res, next) => {
       res.send({
         token: jwt.sign(
           { _id: user._id },
-          NODE_ENV === 'production' ? JWT_SECRET : 'where_are_we_going_with_the_Piglet',
+          NODE_ENV === 'production' ? JWT_SECRET : 'where_are_we_going',
           { expiresIn: '7d' },
         ),
       });
@@ -95,7 +95,7 @@ const getUsers = (req, res, next) => {
 };
 
 const getUser = (req, res, next) => {
-  User.findById(req.params.id)
+  User.findById(req.user._id)
     .then((user) => {
       if (!user) {
         next(new NotFoundError('Пользователь не найден.'));
