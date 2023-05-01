@@ -19,38 +19,6 @@ const getCards = (req, res, next) => {
     })
     .catch(next);
 };
-
-// const createCards = (req, res, next) => {
-//   const ownerId = req.user._id;
-//   console.log(req.user);
-//   const { name, link } = req.body;
-//   console.log(req.body);
-//   Card.create({
-//     name,
-//     link,
-//     owner: ownerId,
-//   })
-//     .then((newCard) => {
-//       console.log(newCard);
-
-//       if (!newCard) {
-//         res.status(BAD_REQUEST_ERROR_CODE).
-// send({ message: '400 — Переданы некорректные данные.' });
-//         return;
-//       }
-//       res.status(201).send(newCard);
-//     })
-//     .catch((err) => {
-//       if (err.name === 'ValidationError') {
-//         res.status(BAD_REQUEST_ERROR_CODE).send({ message: 'Некорректный запрос' });
-//       }
-//     })
-//     .catch(() => {
-//       throw new IntervalServerError('Ошибка сервера');
-//     })
-//     .catch(next);
-// };
-
 async function createCards(req, res, next) {
   try {
     const { name, link } = req.body;
@@ -90,44 +58,6 @@ async function deleteCard(req, res, next) {
     next(err);
   }
 }
-
-// const deleteCard = (req, res, next) => {
-//   const { cardId } = req.params;
-//   const card = Card.findById(cardId).populate('owner')
-// Card.findById(cardId).populate('owner')
-// .then((cardId) => {
-//   if (!cardId) {
-//     next(new ForbiddenError('!!!Нельзя удалять чужие карточки.'));
-//   }
-//   if (JSON.stringify(card.owner) !== JSON.stringify(req.user._id)) {
-// })
-// .then((card) => {
-//   card.remove();
-//   res.status(200).send({ message: 'Карточка удалена.' });
-// })
-// .catch((err) => {
-//   if (err.message === 'Карточка не найдена');
-//   res.status(FORBIDDEN_ERROR).send({ message: 'Нельзя удалять чужие карточки!!!' });
-// })
-// .catch(next);
-//   .then((card) => {
-//     if (!card) {
-//       throw new NotFoundError('Карточка не найдена');
-//     };
-//   })
-//   .then((card) => {
-//     if (card.ownerId !== req.user._id) {
-//       return next(new ForbiddenError('Нельзя удалять чужие карточки.'));
-//     }
-//     return card.remove()
-//       .then(() => res.send({ message: 'Карточка удалена.' }));
-//   })
-//   .catch((err) => {
-//     if (err.message === 'Карточка не найдена');
-//     res.status(FORBIDDEN_ERROR).send({ message: 'Нельзя удалять чужие карточки' });
-//   })
-//   .catch(next);
-// };
 
 const likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
