@@ -6,6 +6,7 @@ const NotFoundError = require('../utils/errors/not-found');
 
 const NOT_FOUND_ERROR_CODE = 404;
 const BAD_REQUEST_ERROR_CODE = 400;
+const FORBIDDEN_ERROR = 403;
 
 const getCards = (req, res, next) => {
   Card.find({})
@@ -22,7 +23,6 @@ const getCards = (req, res, next) => {
 const createCards = (req, res, next) => {
   const ownerId = req.user._id;
   const { name, link } = req.body;
-
   Card.create({
     name,
     link,
@@ -33,7 +33,7 @@ const createCards = (req, res, next) => {
         res.status(BAD_REQUEST_ERROR_CODE).send({ message: '400 — Переданы некорректные данные.' });
         return;
       }
-      res.status(201).send({ data: newCard });
+      res.status(201).send(newCard);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -47,14 +47,34 @@ const createCards = (req, res, next) => {
 };
 
 const deleteCard = (req, res, next) => {
-  Card.findById(req.params.cardId)
+  const { cardId } = req.params.cardId;
+  Card.findById(cardId)
     .orFail(() => new NotFoundError('Карточка не найдена.'))
+    // .then((cardId) => {
+    //   if (!cardId) {
+    //     next(new ForbiddenError('!!!Нельзя удалять чужие карточки.'));
+    //   }
+    //   if (JSON.stringify(card.owner) !== JSON.stringify(req.user._id)) {
+    // })
+    // .then((card) => {
+    //   card.remove();
+    //   res.status(200).send({ message: 'Карточка удалена.' });
+    // })
+    // .catch((err) => {
+    //   if (err.message === 'Карточка не найдена');
+    //   res.status(FORBIDDEN_ERROR).send({ message: 'Нельзя удалять чужие карточки!!!' });
+    // })
+    // .catch(next);
     .then((card) => {
-      if (JSON.stringify(card.owner) !== JSON.stringify(req.user.payload)) {
+      if (card.owner !== req.user._id) {
         return next(new ForbiddenError('Нельзя удалять чужие карточки.'));
       }
       return card.remove()
         .then(() => res.send({ message: 'Карточка удалена.' }));
+    })
+    .catch((err) => {
+      if (err.message === 'Карточка не найдена');
+      res.status(FORBIDDEN_ERROR).send({ message: 'Нельзя удалять чужие карточки' });
     })
     .catch(next);
 };
@@ -63,9 +83,9 @@ const likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
-    { new: true },
+    { new: true, runValidators: true },
   )
-    .populate(['owner', 'likes'])
+    // .populate(['owner', 'likes'])
     .then((card) => {
       if (!card) {
         res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Карточка запроса не найдена' });
