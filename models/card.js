@@ -11,7 +11,7 @@ const cardSchema = new mongoose.Schema({
     maxlength: 30,
   },
   link: {
-    type: mongoose.SchemaTypes.Url,
+    type: mongoose.Schema.Types.Url,
     required: true,
     validate: {
       validator: (link) => imgUrlRegExp.test(link),
@@ -19,12 +19,12 @@ const cardSchema = new mongoose.Schema({
     },
   },
   owner: {
-    type: mongoose.SchemaTypes.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'user',
     required: true,
   },
   likes: [{
-    type: mongoose.SchemaTypes.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'user',
     default: [],
   }],

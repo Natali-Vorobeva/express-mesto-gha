@@ -36,7 +36,7 @@ const userSchema = new mongoose.Schema({
     default: 'Исследователь Mongoose',
   },
   avatar: {
-    type: mongoose.SchemaTypes.Url,
+    type: mongoose.Schema.Types.Url,
     default: 'https://yt3.ggpht.com/ytc/AKedOLTcTak9LjKu1XvPyVBX2ooAAkNrkcm3ja-hCcBp=s900-c-k-c0x00ffffff-no-rj',
     validate: {
       validator: (avatar) => imgUrlRegExp.test(avatar),
