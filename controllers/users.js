@@ -133,11 +133,9 @@ const updateUser = (req, res, next) => {
 };
 
 const updateAvatar = (req, res, next) => {
-  const userId = req.user.id;
-
   const { avatar } = req.body;
   User.findByIdAndUpdate(
-    userId,
+    req.user._id,
     { avatar },
     {
       new: true,

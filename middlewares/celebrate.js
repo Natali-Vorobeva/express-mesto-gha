@@ -46,11 +46,8 @@ const validateCardPost = celebrate({
 
 const validateCardId = celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().alphanum().length(24),
-  })
-    .messages({
-      'string.length': 'Длина id карточки должна быть 24 символа.',
-    }),
+    cardId: Joi.string(),
+  }),
 });
 
 module.exports = {

@@ -20,7 +20,7 @@ const getCards = (req, res, next) => {
 };
 
 const createCards = (req, res, next) => {
-  const ownerId = req.user.id;
+  const ownerId = req.user._id;
   const { name, link } = req.body;
 
   Card.create({
@@ -47,22 +47,14 @@ const createCards = (req, res, next) => {
 };
 
 const deleteCard = (req, res, next) => {
-  const owner = req.user._id;
-
   Card.findById(req.params.cardId)
+    .orFail(() => new NotFoundError('Карточка не найдена.'))
     .then((card) => {
-      if (!card) {
-        throw new NotFoundError(
-          'Карточка с указанным id не найдена.',
-        );
+      if (JSON.stringify(card.owner) !== JSON.stringify(req.user.payload)) {
+        return next(new ForbiddenError('Нельзя удалять чужие карточки.'));
       }
-      if (card.owner.toString() !== owner) {
-        throw new ForbiddenError('Отсутствие прав на удаление карточки.');
-      }
-      return Card.findByIdAndRemove(req.params.cardId);
-    })
-    .catch(() => {
-      throw new IntervalServerError('Ошибка сервера');
+      return card.remove()
+        .then(() => res.send({ message: 'Карточка удалена.' }));
     })
     .catch(next);
 };
@@ -94,8 +86,10 @@ const likeCard = (req, res, next) => {
 const deleteLike = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
-    { $pull: { likes: req.user._id } },
-    { new: true },
+    {
+      $pull: { likes: req.user._id },
+    },
+    { new: true, runValidators: true },
   )
     .then((card) => {
       if (!card) {
