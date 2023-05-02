@@ -1,6 +1,5 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
 const routes = require('./routes');
 
@@ -13,7 +12,7 @@ const app = express();
 mongoose.connect('mongodb://0.0.0.0:27017/mestodb');
 
 app.use(express.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true }));
 
 app.use(routes);
 
