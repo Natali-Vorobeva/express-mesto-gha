@@ -8,6 +8,7 @@ const User = require('../models/user');
 const UnauthorizedError = require('../utils/errors/unauthorized');
 const BadRequestError = require('../utils/errors/bad-request');
 const ConflictError = require('../utils/errors/conflictError');
+const NotFoundError = require('../utils/errors/not-found');
 
 const createUsers = (req, res, next) => {
   const {
@@ -58,9 +59,14 @@ const login = (req, res, next) => {
 
 const getUserInfo = (req, res, next) => {
   User.findById(req.params.id)
-    .orFail(new Error('Ошибка'))
+    .orFail(new NotFoundError('Не найдено.'))
     .then((user) => {
       res.status(200).send(user);
+    })
+    .catch((err) => {
+      if (err.message === 'Не найдено.') {
+        res.status(404).send({ message: 'Пользователь не найден.' });
+      }
     })
     .catch(next);
 };
@@ -75,9 +81,14 @@ const getUsers = (req, res, next) => {
 
 const getUser = (req, res, next) => {
   User.findById(req.user._id)
-    .orFail(new Error('Ошибка'))
+    .orFail(new NotFoundError('Не найдено.'))
     .then((user) => {
       res.status(200).send(user);
+    })
+    .catch((err) => {
+      if (err.message === 'Не найдено.') {
+        res.status(404).send({ message: 'Не найдено.' });
+      }
     })
     .catch(next);
 };
@@ -92,9 +103,14 @@ const updateUser = (req, res, next) => {
       runValidators: true,
     },
   )
-    .orFail(new Error('Ошибка'))
+    .orFail(new NotFoundError('Не найдено.'))
     .then((user) => {
       res.status(200).send(user);
+    })
+    .catch((err) => {
+      if (err.message === 'Не найдено.') {
+        res.status(404).send({ message: 'Не найдено.' });
+      }
     })
     .catch(next);
 };
@@ -109,9 +125,14 @@ const updateAvatar = (req, res, next) => {
       runValidators: true,
     },
   )
-    .orFail(new Error('Ошибка'))
+    .orFail(new NotFoundError('Не найдено.'))
     .then((user) => {
       res.status(200).send(user);
+    })
+    .catch((err) => {
+      if (err.message === 'Не найдено.') {
+        res.status(404).send({ message: 'Не найдено.' });
+      }
     })
     .catch(next);
 };

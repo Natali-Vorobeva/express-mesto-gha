@@ -3,8 +3,6 @@ const Card = require('../models/card');
 const ForbiddenError = require('../utils/errors/forbidden');
 const NotFoundError = require('../utils/errors/not-found');
 
-const NOT_FOUND_ERROR_CODE = 404;
-
 const getCards = (req, res, next) => {
   Card.find({})
     .populate(['owner', 'likes'])
@@ -13,6 +11,7 @@ const getCards = (req, res, next) => {
     })
     .catch(next);
 };
+
 async function createCards(req, res, next) {
   try {
     const { name, link } = req.body;
@@ -44,7 +43,7 @@ async function deleteCard(req, res, next) {
       throw new NotFoundError('Карточка не найдена');
     }
 
-    await Card.deleteOne(cardId);
+    await Card.deleteOne(card);
 
     res.send(card);
   } catch (err) {
@@ -58,12 +57,14 @@ const likeCard = (req, res, next) => {
     { $addToSet: { likes: req.user._id } },
     { new: true, runValidators: true },
   )
-    .orFail(new Error('Ошибка'))
+    .orFail(new NotFoundError('Не найдено.'))
     .then((card) => {
       res.status(200).send({ data: card });
     })
-    .catch(() => {
-      res.status(NOT_FOUND_ERROR_CODE).send({ message: '404 — Не найдено' });
+    .catch((err) => {
+      if (err.message === 'Не найдено.') {
+        res.status(404).send({ message: 'Не найдено.' });
+      }
     })
     .catch(next);
 };
@@ -76,12 +77,14 @@ const deleteLike = (req, res, next) => {
     },
     { new: true, runValidators: true },
   )
-    .orFail(new Error('Ошибка'))
+    .orFail(new NotFoundError('Не найдено.'))
     .then((card) => {
       res.status(200).send({ data: card });
     })
-    .catch(() => {
-      res.status(NOT_FOUND_ERROR_CODE).send({ message: '404 — Не найдено' });
+    .catch((err) => {
+      if (err.message === 'Не найдено.') {
+        res.status(404).send({ message: 'Не найдено.' });
+      }
     })
     .catch(next);
 };
