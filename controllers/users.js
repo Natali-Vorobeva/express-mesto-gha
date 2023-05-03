@@ -5,7 +5,6 @@ const { NODE_ENV, JWT_SECRET } = process.env;
 
 const User = require('../models/user');
 
-const UnauthorizedError = require('../utils/errors/unauthorized');
 const BadRequestError = require('../utils/errors/bad-request');
 const ConflictError = require('../utils/errors/conflictError');
 const NotFoundError = require('../utils/errors/not-found');
@@ -52,8 +51,8 @@ const login = (req, res, next) => {
         ),
       });
     })
-    .catch(() => {
-      next(new UnauthorizedError('Неправильные почта или пароль.'));
+    .catch((err) => {
+      next(err);
     });
 };
 
@@ -64,11 +63,8 @@ const getUserInfo = (req, res, next) => {
       res.status(200).send(user);
     })
     .catch((err) => {
-      if (err.message === 'Не найдено.') {
-        res.status(404).send({ message: 'Пользователь не найден.' });
-      }
-    })
-    .catch(next);
+      next(err);
+    });
 };
 
 const getUsers = (req, res, next) => {
@@ -81,16 +77,13 @@ const getUsers = (req, res, next) => {
 
 const getUser = (req, res, next) => {
   User.findById(req.user._id)
-    .orFail(new NotFoundError('Не найдено.'))
+    .orFail(new NotFoundError('Не найдено'))
     .then((user) => {
       res.status(200).send(user);
     })
     .catch((err) => {
-      if (err.message === 'Не найдено.') {
-        res.status(404).send({ message: 'Не найдено.' });
-      }
-    })
-    .catch(next);
+      next(err);
+    });
 };
 
 const updateUser = (req, res, next) => {
@@ -108,11 +101,8 @@ const updateUser = (req, res, next) => {
       res.status(200).send(user);
     })
     .catch((err) => {
-      if (err.message === 'Не найдено.') {
-        res.status(404).send({ message: 'Не найдено.' });
-      }
-    })
-    .catch(next);
+      next(err);
+    });
 };
 
 const updateAvatar = (req, res, next) => {
@@ -130,11 +120,8 @@ const updateAvatar = (req, res, next) => {
       res.status(200).send(user);
     })
     .catch((err) => {
-      if (err.message === 'Не найдено.') {
-        res.status(404).send({ message: 'Не найдено.' });
-      }
-    })
-    .catch(next);
+      next(err);
+    });
 };
 
 module.exports = {

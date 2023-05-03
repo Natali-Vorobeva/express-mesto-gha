@@ -62,11 +62,8 @@ const likeCard = (req, res, next) => {
       res.status(200).send({ data: card });
     })
     .catch((err) => {
-      if (err.message === 'Не найдено.') {
-        res.status(404).send({ message: 'Не найдено.' });
-      }
-    })
-    .catch(next);
+      next(err);
+    });
 };
 
 const deleteLike = (req, res, next) => {
@@ -82,11 +79,8 @@ const deleteLike = (req, res, next) => {
       res.status(200).send({ data: card });
     })
     .catch((err) => {
-      if (err.message === 'Не найдено.') {
-        res.status(404).send({ message: 'Не найдено.' });
-      }
-    })
-    .catch(next);
+      next(err);
+    });
 };
 
 module.exports = {
