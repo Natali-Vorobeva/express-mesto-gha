@@ -10,7 +10,7 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const BAD_REQUEST_ERROR_CODE = 400;
 
-const { PORT = 3000 } = process.env;
+const { PORT = 3010 } = process.env;
 
 const app = express();
 
